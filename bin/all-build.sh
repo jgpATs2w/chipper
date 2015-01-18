@@ -14,10 +14,16 @@
 for sim in `cat chipper/data/active-sims | xargs`
 do
   if [ -d "$sim" ]; then
-    echo "Building" $sim
-    cd $sim                 # build.sh needs to be run from the sim directory
-    npm install             # executes quickly when everything is up to date compared to build.sh
-    grunt $1 # run the build
-    cd ..                   # and back to the original directory
+    echo -n "Building" $sim "..."
+    cd $sim                 	# build.sh needs to be run from the sim directory
+    npm install > build.log    # executes quickly when everything is up to date compared to build.sh
+    grunt $1 > build.log 	# run the build
+    if [ -f build/$sim_en.html ]; then #check success by existance of built file
+	   echo "OK"
+    else
+	    echo "KO. Watch $sim/build.log for more details";
+    fi
+
+    cd ..                   	# and back to the original directory
   fi
 done

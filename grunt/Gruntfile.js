@@ -37,6 +37,7 @@ module.exports = function( grunt ) {
       'png': 'image/png',
       'svg': 'image/svg+xml',
       'jpg': 'image/jpeg',
+      'gif': 'image/gif',
       'cur': 'image/x-icon', // cursor files (used in build-a-molecule). x-win-bitmap gives off warnings in Chrome
       'mp3': 'audio/mpeg',
       'm4a': 'audio/mp4',
@@ -131,7 +132,7 @@ module.exports = function( grunt ) {
         options: require( './jshint-options' )
       }
     } );
-
+    
   var clean = function() {
     if ( fs.existsSync( 'build' ) ) {
       grunt.log.writeln( 'Cleaning build directory' );
@@ -503,8 +504,7 @@ module.exports = function( grunt ) {
         dependencyInfo.comment = comment;
 
         grunt.file.write( 'build/dependencies.json', JSON.stringify( dependencyInfo, null, 2 ) + '\n' );
-
-        var splashDataURI = loadFileAsDataURI( '../brand/images/splash.svg' );
+        
         var mainInlineJavascript = grunt.file.read( 'build/' + pkg.name + '.min.js' );
 
         //Create the license header for this html and all the 3rd party dependencies
@@ -524,7 +524,6 @@ module.exports = function( grunt ) {
         grunt.log.writeln( 'Constructing HTML from template' );
         var html = grunt.file.read( '../chipper/templates/sim.html' );
         html = stringReplace( html, 'HTML_HEADER', htmlHeader );
-        html = stringReplace( html, 'SPLASH_SCREEN_DATA_URI', splashDataURI );
         html = stringReplace( html, 'PRELOAD_INLINE_JAVASCRIPT', preloadBlocks );
         html = stringReplace( html, 'MAIN_INLINE_JAVASCRIPT', '<script type="text/javascript">' + mainInlineJavascript + '</script>' );
 
@@ -542,6 +541,16 @@ module.exports = function( grunt ) {
         //TODO: Write a list of the string keys & values for translation utilities to use
 
         for ( var i = 0; i < locales.length; i++ ) {
+        	
+			
+		  var splashFile = '../brand/images/splash_' + locales[i] + '.svg';console.info( 'loading splash ' + splashFile ); 
+		  if( ! grunt.file.exists( splashFile ) )
+			splashFile = '../brand/images/splash_en.svg';
+			
+          var splashDataURI = loadFileAsDataURI( splashFile );
+        
+    	  html = stringReplace( html, 'SPLASH_SCREEN_DATA_URI', splashDataURI );
+        	
           var locale = locales[i];
           var strings = getStringsWithFallbacks( locale, global.phet.strings );
           var phetStringsCode = 'window.phetStrings=' + JSON.stringify( strings, null, '' );//TODO: right hand side should be object literal for looked up strings
